@@ -11,6 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.huarongdao.R;
+import com.example.huarongdao.util.SharedPreferencesUtil;
+import com.example.huarongdao.util.TimingUtil;
 
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class DifficultyAdapter extends BaseAdapter {
     public DifficultyAdapter(Context context, List<Integer> data) {
         this.data = data;
         this.inflater = LayoutInflater.from(context);
-        sharedPreferences = context.getSharedPreferences("difficulty", Context.MODE_PRIVATE);
+        sharedPreferences = SharedPreferencesUtil.getSharedPreference(context);
     }
 
     @Override
@@ -66,11 +68,11 @@ public class DifficultyAdapter extends BaseAdapter {
 
         Integer item = getItem(position);
         holder.tvDifficulty.setText(String.format("%d X %d", item, item));
-        String record = sharedPreferences.getString(item.toString(), "");
-        if (TextUtils.isEmpty(record)) {
+        int record = sharedPreferences.getInt(item.toString(), 0);
+        if (record <= 0) {
             holder.tvRecord.setText("");
         } else {
-            holder.tvRecord.setText(record);
+            holder.tvRecord.setText(TimingUtil.timing2String(record));
         }
         return convertView;
     }

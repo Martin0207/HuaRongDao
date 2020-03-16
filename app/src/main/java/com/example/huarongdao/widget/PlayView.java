@@ -5,14 +5,11 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import com.example.huarongdao.R;
 import com.example.huarongdao.bean.Position;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import timber.log.Timber;
 
@@ -37,6 +34,11 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
      * 空闲位置
      */
     private Position idlePosition;
+
+    /**
+     * 游戏结束监听
+     */
+    private OnPlayOverListener listener;
 
     public PlayView(Context context) {
         super(context);
@@ -90,7 +92,7 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
      */
     private void upsetPieces(List<PieceView> temporaryList) {
         //打乱次数,难度系数的平方
-        int count = difficulty * difficulty ;
+        int count = difficulty * difficulty;
         do {
             //随机数,模拟点击位置
             int round = (int) Math.floor(Math.random() * temporaryList.size());
@@ -140,7 +142,6 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
                 for (int k = 0; k < temporaryList.size(); k++) {
                     PieceView pv = temporaryList.get(k);
                     if (pv.getCurrentPosition().getY() == i && pv.getCurrentPosition().getX() == j) {
-                        Timber.e("correct :" + pv.getCorrectPosition() + "\n current: " + pv.getCurrentPosition());
                         addView(pv);
                         break;
                     }
@@ -237,9 +238,25 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
         } else {
             correctCount--;
         }
-        Timber.e("当前已经正确的数量: %d", correctCount);
+        Timber.e("当前正确的数量: " + correctCount);
         if (correctCount >= ((difficulty * difficulty) - 1)) {
-            Timber.e("恭喜你完成该局");
+            if (listener != null) {
+                listener.onPlayOver(0);
+            }
         }
+    }
+
+    public void setListener(OnPlayOverListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnPlayOverListener {
+        /**
+         * 游戏结束回调
+         *
+         * @param state 结束状态,目前默认为0
+         *              预留后面添加超时失败等状态
+         */
+        void onPlayOver(int state);
     }
 }
