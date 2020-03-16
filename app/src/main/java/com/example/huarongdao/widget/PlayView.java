@@ -52,6 +52,8 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
     }
 
     private void init() {
+        //初始化空格定位,默认为最后一个格子
+        idlePosition = new Position(difficulty, difficulty);
 
         //清空所有child
         //如果不清空,会出现底层背景重叠的问题
@@ -68,29 +70,83 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
             pieceView.setLayoutParams(layoutParams);
             //将棋子添加有序临时数组中
             temporaryList.add(pieceView);
-        }
-        do {
-            //获取随机数(0 到 当前数字长度-1 之间)
-            int round = (int) Math.floor(Math.random() * temporaryList.size());
-            //将随机获取的棋子存放到数据池中
-            PieceView pv = temporaryList.get(round);
-            addView(pv);
-            //初始化棋子的当前位置
-            pv.initCurrentPosition(getChildCount());
             //设置棋子的点击事件
-            pv.setOnClickListener(new OnClickListener() {
+            pieceView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     processPieceClick((PieceView) v);
                 }
             });
-            //将棋子添加到本布局中
-            //在有序数据池中将已添加的棋子移除,避免重复获取
-            temporaryList.remove(pv);
-        } while (temporaryList.size() > 0);
+        }
 
-        //初始化空格定位,默认为最后一个格子
-        idlePosition = new Position(difficulty, difficulty);
+        upsetPieces(temporaryList);
+    }
+
+    /**
+     * 打乱棋子
+     * 之前使用的随机数打乱法，会导致最终无解
+     *
+     * @param temporaryList 棋子有序数组
+     */
+    private void upsetPieces(List<PieceView> temporaryList) {
+        //打乱次数,难度系数的平方
+        int count = difficulty * difficulty ;
+        do {
+            //随机数,模拟点击位置
+            int round = (int) Math.floor(Math.random() * temporaryList.size());
+            //根据难度系数与模拟点击的位置数字,得出棋子的正确坐标
+            int randomX = round % difficulty == 0 ? difficulty : round % difficulty;
+            int randomY = (round - 1) / difficulty + 1;
+            //空格坐标
+            int idleX = idlePosition.getX();
+            int idleY = idlePosition.getY();
+            if (randomX == idleX && randomY != idleY) {
+                count--;
+                idlePosition.setY(randomY);
+                for (int i = 0; i < temporaryList.size(); i++) {
+                    PieceView pv = temporaryList.get(i);
+                    int currX = pv.getCurrentPosition().getX();
+                    int currY = pv.getCurrentPosition().getY();
+                    if (currX == idleX) {
+                        if (randomY > idleY && currY <= randomY && currY > idleY) {
+                            pv.setCurrentPosition(currX, currY - 1);
+                        } else if (randomY < idleY && currY >= randomY && currY < idleY) {
+                            pv.setCurrentPosition(currX, currY + 1);
+                        }
+                    }
+                }
+
+            } else if (randomY == idleY && randomX != idleX) {
+                count--;
+                idlePosition.setX(randomX);
+                for (int i = 0; i < temporaryList.size(); i++) {
+                    PieceView pv = temporaryList.get(i);
+                    int currY = pv.getCurrentPosition().getY();
+                    int currX = pv.getCurrentPosition().getX();
+                    if (currY == idleY) {
+                        if (randomX > idleX && currX <= randomX && currX > idleX) {
+                            pv.setCurrentPosition(currX - 1, currY);
+                        } else if (randomX < idleX && currX >= randomX && currX < idleX) {
+                            pv.setCurrentPosition(currX + 1, currY);
+                        }
+                    }
+
+                }
+            }
+        } while (count >= 0);
+        //对打乱后的数据进行排序添加到布局中
+        for (int i = 1; i <= difficulty; i++) {
+            for (int j = 1; j <= difficulty; j++) {
+                for (int k = 0; k < temporaryList.size(); k++) {
+                    PieceView pv = temporaryList.get(k);
+                    if (pv.getCurrentPosition().getY() == i && pv.getCurrentPosition().getX() == j) {
+                        Timber.e("correct :" + pv.getCorrectPosition() + "\n current: " + pv.getCurrentPosition());
+                        addView(pv);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**

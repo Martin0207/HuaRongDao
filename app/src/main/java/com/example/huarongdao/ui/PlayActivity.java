@@ -44,19 +44,6 @@ public class PlayActivity extends BaseActivity {
         setContentView(R.layout.activity_play);
 
         init();
-        CountDownTimer cdt = new CountDownTimer(1000L, 1000L) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                Timber.e("计时器 " + millisUntilFinished);
-            }
-
-            @Override
-            public void onFinish() {
-                Timber.e("计时结束");
-            }
-        };
-        cdt.start();
     }
 
     private void init() {

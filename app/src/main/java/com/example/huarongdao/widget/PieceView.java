@@ -81,6 +81,7 @@ public class PieceView extends View {
         int y = (number - 1) / difficulty + 1;
 
         correctPosition = new Position(x, y);
+        currentPosition = new Position(x, y);
 
         //初始化 画笔
         paint = new Paint();
@@ -94,14 +95,14 @@ public class PieceView extends View {
 
 
     /**
-     * 设置初始位置
-     *
-     * @param number 棋子定位
+     * 设置棋子当前位置
      */
-    public void initCurrentPosition(int number) {
-        int y = (number - 1) / difficulty + 1;
-        int x = number % difficulty == 0 ? difficulty : number % difficulty;
-        currentPosition = new Position(x, y);
+    public void setCurrentPosition(int x, int y) {
+        if (currentPosition == null) {
+            currentPosition = new Position(x, y);
+        }
+        currentPosition.setX(x);
+        currentPosition.setY(y);
         verifyCorrect();
     }
 
