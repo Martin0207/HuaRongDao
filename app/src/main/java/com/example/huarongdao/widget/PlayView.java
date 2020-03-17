@@ -54,15 +54,13 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
     }
 
     private void init() {
+        correctCount = difficulty * difficulty - 1;
         //初始化空格定位,默认为最后一个格子
         idlePosition = new Position(difficulty, difficulty);
 
         //清空所有child
         //如果不清空,会出现底层背景重叠的问题
         removeAllViews();
-        //建立临时数据数组
-        //临时数据数组是有序的,后面会通过随机数字获取的方式逐一打乱
-        List<PieceView> temporaryList = new ArrayList<>();
         for (int i = 1; i < difficulty * difficulty; i++) {
             //创建棋子
             PieceView pieceView = new PieceView(getContext(), difficulty, i, this);
@@ -71,7 +69,7 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
             LayoutParams layoutParams = new LayoutParams(pieceView.getLength(), pieceView.getLength());
             pieceView.setLayoutParams(layoutParams);
             //将棋子添加有序临时数组中
-            temporaryList.add(pieceView);
+            addView(pieceView);
             //设置棋子的点击事件
             pieceView.setOnClickListener(new OnClickListener() {
                 @Override
@@ -81,21 +79,19 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
             });
         }
 
-        upsetPieces(temporaryList);
+        upsetPieces();
     }
 
     /**
      * 打乱棋子
      * 之前使用的随机数打乱法，会导致最终无解
-     *
-     * @param temporaryList 棋子有序数组
      */
-    private void upsetPieces(List<PieceView> temporaryList) {
+    public void upsetPieces() {
         //打乱次数,难度系数的平方
         int count = difficulty * difficulty;
         do {
             //随机数,模拟点击位置
-            int round = (int) Math.floor(Math.random() * temporaryList.size());
+            int round = (int) Math.floor(Math.random() * getChildCount());
             //根据难度系数与模拟点击的位置数字,得出棋子的正确坐标
             int randomX = round % difficulty == 0 ? difficulty : round % difficulty;
             int randomY = (round - 1) / difficulty + 1;
@@ -105,8 +101,8 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
             if (randomX == idleX && randomY != idleY) {
                 count--;
                 idlePosition.setY(randomY);
-                for (int i = 0; i < temporaryList.size(); i++) {
-                    PieceView pv = temporaryList.get(i);
+                for (int i = 0; i < getChildCount(); i++) {
+                    PieceView pv = (PieceView) getChildAt(i);
                     int currX = pv.getCurrentPosition().getX();
                     int currY = pv.getCurrentPosition().getY();
                     if (currX == idleX) {
@@ -121,8 +117,8 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
             } else if (randomY == idleY && randomX != idleX) {
                 count--;
                 idlePosition.setX(randomX);
-                for (int i = 0; i < temporaryList.size(); i++) {
-                    PieceView pv = temporaryList.get(i);
+                for (int i = 0; i < getChildCount(); i++) {
+                    PieceView pv = (PieceView) getChildAt(i);
                     int currY = pv.getCurrentPosition().getY();
                     int currX = pv.getCurrentPosition().getX();
                     if (currY == idleY) {
@@ -132,22 +128,10 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
                             pv.setCurrentPosition(currX + 1, currY);
                         }
                     }
-
                 }
             }
         } while (count >= 0);
-        //对打乱后的数据进行排序添加到布局中
-        for (int i = 1; i <= difficulty; i++) {
-            for (int j = 1; j <= difficulty; j++) {
-                for (int k = 0; k < temporaryList.size(); k++) {
-                    PieceView pv = temporaryList.get(k);
-                    if (pv.getCurrentPosition().getY() == i && pv.getCurrentPosition().getX() == j) {
-                        addView(pv);
-                        break;
-                    }
-                }
-            }
-        }
+
     }
 
     /**

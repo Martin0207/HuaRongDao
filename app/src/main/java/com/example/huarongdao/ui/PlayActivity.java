@@ -19,6 +19,8 @@ import com.example.huarongdao.util.SharedPreferencesUtil;
 import com.example.huarongdao.util.TimingUtil;
 import com.example.huarongdao.widget.PlayView;
 
+import timber.log.Timber;
+
 public class PlayActivity extends BaseActivity {
 
     /**
@@ -87,7 +89,7 @@ public class PlayActivity extends BaseActivity {
         ivBack = findViewById(R.id.iv_back);
         tvTitle = findViewById(R.id.tv_title);
         tvTiming = findViewById(R.id.tv_timing);
-        tvTitle.setText(String.format("%d X %d", difficulty, difficulty));
+        resetTitle();
         ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +100,7 @@ public class PlayActivity extends BaseActivity {
         pv.setListener(new PlayView.OnPlayOverListener() {
             @Override
             public void onPlayOver(int state) {
-                timingHandler.removeMessages(WHAT_TIMING);
+                stopTiming();
                 showSuccessDialog();
             }
         });
@@ -109,10 +111,13 @@ public class PlayActivity extends BaseActivity {
         int record = sb.getInt(String.valueOf(difficulty), 0);
         String optimal;
         if (record == 0 || timing < record) {
-            sb.edit().putInt(String.valueOf(difficulty), timing);
+            SharedPreferences.Editor edit = sb.edit();
+            edit.putInt(String.valueOf(difficulty), timing);
+            boolean commit = edit.commit();
+            Timber.e("上传成功了没? " + commit);
             optimal = TimingUtil.timing2String(timing);
         } else {
-            optimal = TimingUtil.timing2String(timing);
+            optimal = TimingUtil.timing2String(record);
         }
         new AlertDialog.Builder(this)
                 .setTitle("恭喜过关")
@@ -121,13 +126,49 @@ public class PlayActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        //重新打乱棋子
+                        pv.upsetPieces();
+                        //重新布置棋子
+                        pv.requestLayout();
+                        startTiming();
                     }
                 })
                 .setPositiveButton("提高难度", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                        pv.setDifficulty(++difficulty);
+                        resetTitle();
+                        startTiming();
                     }
-                }).show();
+                })
+                .setNeutralButton("返回", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .show();
+    }
+
+    private void resetTitle() {
+        tvTitle.setText(String.format("%d X %d", difficulty, difficulty));
+    }
+
+    /**
+     * 开始计时
+     */
+    private void startTiming() {
+        //将计时归零,并发送倒计时通知
+        timing = 0;
+        tvTiming.setText(TimingUtil.timing2String(timing));
+        timingHandler.sendEmptyMessageDelayed(WHAT_TIMING, WHAT_TIMING);
+    }
+
+    /**
+     * 停止计时
+     */
+    private void stopTiming() {
+        timingHandler.removeMessages(WHAT_TIMING);
     }
 }

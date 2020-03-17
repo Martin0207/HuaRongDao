@@ -77,4 +77,10 @@ public class MainActivity extends BaseActivity {
         lvContent.setAdapter(adapter);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //每次回到页面时,刷新数据,让最佳时间进入
+        adapter.notifyDataSetChanged();
+    }
 }

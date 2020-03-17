@@ -56,10 +56,8 @@ public class PieceView extends View {
 
     /**
      * 当前定位是否正确
-     * 默认为false,且false时,棋子变动后依旧为false,则不会调用改变通知
-     * 反之亦然
      */
-    private boolean correct = false;
+    private boolean correct = true;
 
     /**
      * 初始化
@@ -99,7 +97,7 @@ public class PieceView extends View {
      */
     public void setCurrentPosition(int x, int y) {
         if (currentPosition == null) {
-            currentPosition = new Position(x, y);
+            currentPosition = new Position(correctPosition.getX(), correctPosition.getY());
         }
         currentPosition.setX(x);
         currentPosition.setY(y);
