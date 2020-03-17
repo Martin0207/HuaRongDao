@@ -13,10 +13,12 @@ public class TimingUtil {
             return "00:" + timing;
         } else {
             int min = timing / 60;
+            int second = timing % 60;
+            String sec = second < 10 ? "0" + second : String.valueOf(second);
             if (min >= 10) {
-                return min + ":" + timing % 60;
+                return min + ":" + sec;
             } else {
-                return "0" + min + ":" + timing % 6;
+                return "0" + min + ":" + sec;
             }
         }
     }
