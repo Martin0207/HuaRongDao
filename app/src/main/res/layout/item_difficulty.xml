@@ -8,11 +8,24 @@
 
     <TextView
         android:id="@+id/tv_difficulty"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="18sp"
+        android:layout_width="160dp"
+        android:layout_height="64dp"
+        android:background="@drawable/bg_timg"
+        android:gravity="center"
+        android:textSize="34sp"
         tools:text="6 X 6" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/iv_optimal"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/ic_king" />
 
     <TextView
         android:id="@+id/tv_record"

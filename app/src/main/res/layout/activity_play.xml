@@ -28,13 +28,23 @@
             android:textColor="#000000"
             android:textSize="20sp" />
 
+        <TextView
+            android:id="@+id/tv_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="8dp"
+            android:text="记录"
+            android:textColor="@color/colorPrimary" />
+
     </RelativeLayout>
 
     <com.example.huarongdao.widget.PlayView
         android:id="@+id/pv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorAccent" />
+        android:background="#dddddd" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +62,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="32dp" />
+            android:layout_marginRight="32dp"
+            android:textSize="16sp" />
 
     </LinearLayout>
 

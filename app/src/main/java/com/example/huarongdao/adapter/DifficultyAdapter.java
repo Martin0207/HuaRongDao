@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.huarongdao.R;
@@ -71,8 +72,10 @@ public class DifficultyAdapter extends BaseAdapter {
         int record = sharedPreferences.getInt(item.toString(), 0);
         if (record <= 0) {
             holder.tvRecord.setText("");
+            holder.ivOptimal.setVisibility(View.GONE);
         } else {
             holder.tvRecord.setText(TimingUtil.timing2String(record));
+            holder.ivOptimal.setVisibility(View.VISIBLE);
         }
         return convertView;
     }
@@ -85,10 +88,16 @@ public class DifficultyAdapter extends BaseAdapter {
 
         TextView tvRecord;
 
+        /**
+         * 最佳图片
+         */
+        private ImageView ivOptimal;
+
         public ViewHolder(View contentView) {
             this.contentView = contentView;
             tvDifficulty = contentView.findViewById(R.id.tv_difficulty);
             tvRecord = contentView.findViewById(R.id.tv_record);
+            ivOptimal = contentView.findViewById(R.id.iv_optimal);
         }
     }
 

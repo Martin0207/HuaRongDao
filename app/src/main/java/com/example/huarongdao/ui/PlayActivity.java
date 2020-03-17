@@ -15,9 +15,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.huarongdao.R;
+import com.example.huarongdao.bean.RecordEntity;
+import com.example.huarongdao.dao.DB;
 import com.example.huarongdao.util.SharedPreferencesUtil;
 import com.example.huarongdao.util.TimingUtil;
 import com.example.huarongdao.widget.PlayView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import timber.log.Timber;
 
@@ -38,7 +43,15 @@ public class PlayActivity extends BaseActivity {
      */
     private TextView tvTitle;
 
+    /**
+     * 计时
+     */
     private TextView tvTiming;
+
+    /**
+     * 历史记录
+     */
+    private TextView tvRecord;
 
     /**
      * 难度系数
@@ -89,6 +102,7 @@ public class PlayActivity extends BaseActivity {
         ivBack = findViewById(R.id.iv_back);
         tvTitle = findViewById(R.id.tv_title);
         tvTiming = findViewById(R.id.tv_timing);
+        tvRecord = findViewById(R.id.tv_record);
         resetTitle();
         ivBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,17 +118,30 @@ public class PlayActivity extends BaseActivity {
                 showSuccessDialog();
             }
         });
+
+        tvRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RecordListActivity.start(PlayActivity.this, difficulty);
+            }
+        });
     }
 
+    /**
+     * 展示成功弹窗
+     */
     private void showSuccessDialog() {
         SharedPreferences sb = SharedPreferencesUtil.getSharedPreference(this);
         int record = sb.getInt(String.valueOf(difficulty), 0);
         String optimal;
+
+        //recording
+        recording(timing);
+
         if (record == 0 || timing < record) {
             SharedPreferences.Editor edit = sb.edit();
             edit.putInt(String.valueOf(difficulty), timing);
             boolean commit = edit.commit();
-            Timber.e("上传成功了没? " + commit);
             optimal = TimingUtil.timing2String(timing);
         } else {
             optimal = TimingUtil.timing2String(record);
@@ -122,6 +149,7 @@ public class PlayActivity extends BaseActivity {
         new AlertDialog.Builder(this)
                 .setTitle("恭喜过关")
                 .setMessage(String.format("恭喜你以 %s 通过本关.\n最佳时间:%s", tvTiming.getText(), optimal))
+                .setCancelable(false)
                 .setNegativeButton("重新开始", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -149,6 +177,30 @@ public class PlayActivity extends BaseActivity {
                     }
                 })
                 .show();
+    }
+
+    /**
+     * 添加历史记录
+     *
+     * @param timingString 当前记录时间
+     */
+    private void recording(final int timingString) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                RecordEntity recordEntity = new RecordEntity();
+                recordEntity.setTiming(timingString);
+                recordEntity.setDifficulty(difficulty);
+                String datetime = new SimpleDateFormat("yyyy年MM月dd日 HH时mm分ss秒").format(System.currentTimeMillis());
+                recordEntity.setDatetime(datetime);
+                Long recordCount = DB.getInstance(PlayActivity.this)
+                        .recordDao()
+                        .insertRecord(recordEntity);
+                Timber.e("当前已有记录 : %d", recordCount);
+            }
+        }.start();
+
     }
 
     private void resetTitle() {

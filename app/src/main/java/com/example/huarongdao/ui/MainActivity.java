@@ -1,17 +1,13 @@
 package com.example.huarongdao.ui;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.example.huarongdao.R;
 import com.example.huarongdao.adapter.DifficultyAdapter;
-import com.example.huarongdao.widget.PieceView;
 
 import java.util.ArrayList;
 
@@ -32,6 +28,7 @@ public class MainActivity extends BaseActivity {
      * 列表适配器
      */
     private DifficultyAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

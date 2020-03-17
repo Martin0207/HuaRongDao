@@ -88,7 +88,7 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
      */
     public void upsetPieces() {
         //打乱次数,难度系数的平方
-        int count = difficulty * difficulty;
+        int count = difficulty * difficulty * 10;
         do {
             //随机数,模拟点击位置
             int round = (int) Math.floor(Math.random() * getChildCount());
@@ -222,7 +222,6 @@ public class PlayView extends ViewGroup implements PieceView.OnPositionChangedLi
         } else {
             correctCount--;
         }
-        Timber.e("当前正确的数量: " + correctCount);
         if (correctCount >= ((difficulty * difficulty) - 1)) {
             if (listener != null) {
                 listener.onPlayOver(0);
